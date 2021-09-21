@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "../styles/Snake.module.css";
 
 const Config = {
@@ -63,6 +63,12 @@ const getRandomCell = () => ({
   y: Math.floor(Math.random() * Config.width),
 });
 
+// Reappear the snake from the opposite dirrection(Cyclic Rotation)
+const getPosition = ({ x, y }) => ({
+  x: (x + Config.width) % Config.width,
+  y: (y + Config.height) % Config.height,
+});
+
 const Snake = () => {
   const getDefaultSnake = () => [
     { x: 8, y: 12 },
@@ -83,7 +89,10 @@ const Snake = () => {
     const runSingleStep = () => {
       setSnake((snake) => {
         const head = snake[0];
-        const newHead = { x: head.x + direction.x, y: head.y + direction.y };
+        const newHead = getPosition({
+          x: head.x + direction.x,
+          y: head.y + direction.y,
+        });
 
         // make a new snake by extending head
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
@@ -114,7 +123,6 @@ const Snake = () => {
       while (isSnake(newFood)) {
         newFood = getRandomCell();
       }
-
       setFood(newFood);
     }
   }, [snake]);
@@ -123,19 +131,29 @@ const Snake = () => {
     const handleNavigation = (event) => {
       switch (event.key) {
         case "ArrowUp":
-          setDirection(Direction.Top);
+          setDirection((prevDirection) =>
+            prevDirection === Direction.Bottom
+              ? Direction.Bottom
+              : Direction.Top
+          );
           break;
 
         case "ArrowDown":
-          setDirection(Direction.Bottom);
+          setDirection((prevDirection) =>
+            prevDirection === Direction.Top ? Direction.Top : Direction.Bottom
+          );
           break;
 
         case "ArrowLeft":
-          setDirection(Direction.Left);
+          setDirection((prevDirection) =>
+            prevDirection === Direction.Right ? Direction.Right : Direction.Left
+          );
           break;
 
         case "ArrowRight":
-          setDirection(Direction.Right);
+          setDirection((prevDirection) =>
+            prevDirection === Direction.Left ? Direction.Left : Direction.Right
+          );
           break;
       }
     };
