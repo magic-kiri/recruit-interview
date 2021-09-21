@@ -84,6 +84,11 @@ const Snake = () => {
   const [food, setFood] = useState({ x: 4, y: 10 });
   const [score, setScore] = useState(0);
 
+  const resetGame = () => {
+    setDirection(Direction.Right);
+    setScore(0);
+  };
+
   // move the snake
   useEffect(() => {
     const runSingleStep = () => {
@@ -93,13 +98,20 @@ const Snake = () => {
           x: head.x + direction.x,
           y: head.y + direction.y,
         });
+        if (isSnake(newHead)) {
+          resetGame();
+          return getDefaultSnake();
+        }
 
         // make a new snake by extending head
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
         const newSnake = [newHead, ...snake];
 
         // remove tail
-        newSnake.pop();
+
+        if (!isFood(newHead)) {
+          newSnake.pop();
+        }
 
         return newSnake;
       });
@@ -123,10 +135,12 @@ const Snake = () => {
       while (isSnake(newFood)) {
         newFood = getRandomCell();
       }
+
       setFood(newFood);
     }
   }, [snake]);
 
+  // The Snake is unable to turn 180 degree.
   useEffect(() => {
     const handleNavigation = (event) => {
       switch (event.key) {
