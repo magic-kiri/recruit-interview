@@ -81,7 +81,8 @@ const Snake = () => {
   const [snake, setSnake] = useState(getDefaultSnake());
   const [direction, setDirection] = useState(Direction.Right);
 
-  const [food, setFood] = useState({ x: 4, y: 10 });
+  // There can be multiple foods
+  const [foods, setFoods] = useState([{ x: 4, y: 10 }]);
   const [score, setScore] = useState(0);
 
   const resetGame = () => {
@@ -121,7 +122,28 @@ const Snake = () => {
     const timer = setInterval(runSingleStep, 500);
 
     return () => clearInterval(timer);
-  }, [direction, food]);
+  }, [direction, foods]);
+
+  // gives a new available cell for food
+  const getNewFood = () => {
+    let newFood = getRandomCell();
+    while (isSnake(newFood) || isFood(newFood)) {
+      newFood = getRandomCell();
+    }
+    return newFood;
+  };
+
+  // removes a food from the food list
+  const removeFood = ({ x, y }) => {
+    setFoods((foods) =>
+      foods.filter((food) => !(food.x === x && food.y === y))
+    );
+  };
+
+  // adds a given food to the food list
+  const addFood = (food) => {
+    setFoods((foods) => [...foods, food]);
+  };
 
   // update score whenever head touches a food
   useEffect(() => {
@@ -131,12 +153,8 @@ const Snake = () => {
         return score + 1;
       });
 
-      let newFood = getRandomCell();
-      while (isSnake(newFood)) {
-        newFood = getRandomCell();
-      }
-
-      setFood(newFood);
+      removeFood(head);
+      addFood(getNewFood());
     }
   }, [snake]);
 
@@ -178,7 +196,10 @@ const Snake = () => {
 
   // ?. is called optional chaining
   // see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining
-  const isFood = ({ x, y }) => food?.x === x && food?.y === y;
+
+  // checks the entire array
+  const isFood = ({ x, y }) =>
+    foods.find((food) => food.x === x && food.y === y);
 
   const isSnake = ({ x, y }) =>
     snake.find((position) => position.x === x && position.y === y);
