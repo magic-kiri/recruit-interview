@@ -249,7 +249,18 @@ test("Example 5: return total number of people in the dataset", () => {
 });
 
 // given a color, return number of people who have that eye color
-const exercise51 = (color) => {};
+const exercise51 = (color) => {
+  const getTotalPeopleWithEyeColor = (person) =>
+    person.subordinates
+      .map((subordinate) => getTotalPeopleWithEyeColor(subordinate))
+      .reduce(
+        (total, employees) => total + employees,
+        // count person herself if she has the same eyeColor
+        person.eyeColor === color
+      );
+
+  return getTotalPeopleWithEyeColor(CruzHarrell);
+};
 
 test("Exercise 5.1: given a color, return number of people who have that eye color", () => {
   expect(exercise51("green")).toEqual(11);
@@ -270,7 +281,17 @@ test("distance: given two locations, return the distance between them", () => {
 });
 
 // given maxDistance, return number of employees who lives within maxDistance distance of their managers
-const exercise52 = (maxDistance) => {};
+const exercise52 = (maxDistance) => {
+  const getTotalEmployee = (person) =>
+    person.subordinates
+      .map(
+        (subordinate) =>
+          (distance(subordinate.location, person.location) <= maxDistance) +
+          getTotalEmployee(subordinate)
+      )
+      .reduce((total, employees) => total + employees, 0);
+  return getTotalEmployee(CruzHarrell);
+};
 
 test("Exercise 5.2: given maxDistance, return number of employees who lives within maxDistance distance of their managers", () => {
   expect(exercise52(5)).toEqual(25);
@@ -279,7 +300,26 @@ test("Exercise 5.2: given maxDistance, return number of employees who lives with
 
 // return first name (not full name) of all person who has the same company as their manager
 // hint: exercise11
-const exercise53 = () => {};
+const exercise53 = () => {
+  let names = [];
+  // This function follows DFS algorithm to collect all such names
+  const getFullNames = (person) => {
+    for (subordinate of person.subordinates) {
+      if (exercise11(subordinate.email) === exercise11(person.email))
+        names.push(subordinate.name);
+      getFullNames(subordinate);
+    }
+  };
+  // DFS from root
+  getFullNames(CruzHarrell);
+
+  // returning only first name 
+  return names.map((name) => {
+    let index = name.indexOf(" ");
+    if (index === -1) index = name.length;
+    return name.slice(0, index);
+  });
+};
 
 test("Exercise 5.3: return first name (not full name) of all person who has the same company as their manager", () => {
   expect(exercise53()).toEqual(["Suzanne", "Gregory", "Buchanan"]);
