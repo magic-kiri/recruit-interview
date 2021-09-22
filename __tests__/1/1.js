@@ -85,8 +85,7 @@ test("Exercise 2.1: given a person and [minAge, maxAge], return number of subord
 const exercise22 = (person) => {
   let result = [];
   for (subordinate of person.subordinates) {
-    if(subordinate.subordinates.length)
-      result.push(subordinate.name);
+    if (subordinate.subordinates.length) result.push(subordinate.name);
   }
   return result;
 };
@@ -119,7 +118,15 @@ test("Example 3: given a person, return total balance of her subordinates", () =
 });
 
 // given a person, return average age of her subordinates
-const exercise31 = (person) => {};
+const exercise31 = (person) => {
+  // the given person must have at least one subordinate
+  return (
+    person.subordinates.reduce(
+      (total, subordinate) => total + subordinate.age,
+      0
+    ) / person.subordinates.length
+  );
+};
 
 test("Exercise 3.1: given a person, return average age of her subordinates", () => {
   expect(exercise31(CruzHarrell)).toBeCloseTo(50.2);
@@ -128,7 +135,12 @@ test("Exercise 3.1: given a person, return average age of her subordinates", () 
 
 // given a person, return difference between female and male subordinates
 // e.g: if someone has 4 female subordinates and 7 male subordinates, return -3(=4-7)
-const exercise32 = (person) => {};
+const exercise32 = (person) => {
+  return person.subordinates.reduce(
+    (total, subordinate) => total + (subordinate.gender === "female" ? 1 : -1),
+    0
+  );
+};
 
 test("Exercise 3.2: given a person, return difference between female and male subordinates", () => {
   expect(exercise32(CruzHarrell)).toEqual(2);
@@ -136,7 +148,12 @@ test("Exercise 3.2: given a person, return difference between female and male su
 });
 
 // do the same exercise32, but with using only 1 reduce function and nothing else
-const exercise32a = (person) => {};
+const exercise32a = (person) => {
+  return person.subordinates.reduce(
+    (total, subordinate) => total + (subordinate.gender === "female" ? 1 : -1),
+    0
+  );
+};
 
 test("Exercise 3.2a: given a person, return difference between female and male subordinates", () => {
   expect(exercise32a(CruzHarrell)).toEqual(2);
@@ -150,7 +167,13 @@ test("Exercise 3.2a: given a person, return difference between female and male s
 */
 
 // implement map function
-const map = (array, func) => {};
+const map = (array, func) => {
+  let result = [];
+  for (element of array) {
+    result.push(func(element));
+  }
+  return result;
+};
 
 test("Exercise 4.1: implement map function", () => {
   const m1 = [Math.random(), Math.random(), Math.random(), Math.random()];
@@ -161,7 +184,13 @@ test("Exercise 4.1: implement map function", () => {
 });
 
 // implement filter function
-const filter = (array, func) => {};
+const filter = (array, func) => {
+  let result = [];
+  for (element of array) {
+    if (func(element)) result.push(element);
+  }
+  return result;
+};
 
 test("Exercise 4.2: implement filter function", () => {
   const f1 = [
@@ -179,7 +208,13 @@ test("Exercise 4.2: implement filter function", () => {
 });
 
 // implement reduce
-const reduce = (array, func, initalValue) => {};
+const reduce = (array, func, initalValue) => {
+  let currentValue = initalValue;
+  for (element of array) {
+    currentValue = func(currentValue, element);
+  }
+  return currentValue;
+};
 
 test("Exercise 4.3: implement reduce function", () => {
   const r1 = [Math.random(), Math.random(), Math.random(), Math.random()];
