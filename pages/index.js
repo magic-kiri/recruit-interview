@@ -6,6 +6,9 @@ const Config = {
   height: 25,
   width: 25,
   cellSize: 32,
+  foodLifetime: 10000,
+  foodInterval: 3000,
+  refreshInterval: 1000,
 };
 
 const CellType = {
@@ -82,7 +85,9 @@ const Snake = () => {
   const [direction, setDirection] = useState(Direction.Right);
 
   // There can be multiple foods
-  const [foods, setFoods] = useState([{ x: 4, y: 10 }]);
+  const [foods, setFoods] = useState([
+    { x: 4, y: 10, arrivalTime: new Date() },
+  ]);
   const [score, setScore] = useState(0);
 
   const resetGame = () => {
@@ -130,6 +135,7 @@ const Snake = () => {
     while (isSnake(newFood) || isFood(newFood)) {
       newFood = getRandomCell();
     }
+    newFood.arrivalTime = new Date();
     return newFood;
   };
 
@@ -154,9 +160,42 @@ const Snake = () => {
       });
 
       removeFood(head);
-      addFood(getNewFood());
+      
     }
   }, [snake]);
+
+  // every 3s a new food will arrive and it will vanish after 10s
+  useEffect(() => {
+    const createNewFood = () => {
+      let newFood = getNewFood();
+      addFood(newFood);
+    };
+
+    // checks the food list. All foods appeared in the ascending order of their arrival time
+    const refreshFood = () => {
+      setFoods((prevFoods) => {
+        let idx = prevFoods.findIndex((food) => {
+          return new Date() - food.arrivalTime < Config.foodLifetime;
+        });
+
+        if (idx == -1) return [];
+        else if (idx == 0) return prevFoods;
+        // Not updating the state
+        else return prevFoods.slice(idx); // suffix of the current food list
+      });
+    };
+
+    const addFoodTimer = setInterval(createNewFood, Config.foodInterval);
+
+    // Every second we will refresh the food list
+    const refreshTimer = setInterval(refreshFood, Config.refreshInterval);
+
+    return () => {
+      // cleanup
+      clearInterval(refreshTimer);
+      clearInterval(addFoodTimer);
+    };
+  }, []);
 
   // The Snake is unable to turn 180 degree.
   useEffect(() => {
